@@ -10,6 +10,9 @@ _FLAGS = [
   // TODO(nnaze): Allow specification of additional deps files.
 ]
 
+function log(msg) {
+  java.lang.System.err.println(msg);
+}
 
 function parseArgs(args) {
   var newArgs = []
@@ -79,8 +82,16 @@ function main(args) {
   load(basePath);
   load(depsPath);
 
+  goog.global.CLOSURE_IMPORT_SCRIPT = function(scriptPath) {
+    var pathToScript = baseDir + separator + scriptPath;
+
+    log('loading file ' + pathToScript);
+    load(pathToScript);
+  }
+
   for (var i = 0; i < args.length; args++) {
     var arg = args[i];
+    log('requiring ' + arg);
     goog.require(arg);
   }
 }
