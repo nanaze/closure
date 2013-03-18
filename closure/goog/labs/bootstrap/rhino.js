@@ -7,6 +7,7 @@
 
 _FLAGS = [
   '--base'
+  // TODO(nnaze): Allow specification of additional deps files.
 ]
 
 
