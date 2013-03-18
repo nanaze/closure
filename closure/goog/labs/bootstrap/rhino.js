@@ -1,3 +1,9 @@
+/**
+ * @fileoverview This is a bootstrap script to run Closure on Rhino.
+ * Usage:
+ * rhino path/to/bootstrap/rhino.js <closure.namespace>
+ */
+
 
 _FLAGS = [
   '--base'
@@ -41,6 +47,17 @@ function getBaseDirectory(basePath) {
   return match[1];
 }
 
+function extractScriptFromCommand(command) {
+  var re = new RegExp('java\/rhino\/js.jar (.*?\\.js)'); // (.*?\.js\b)');
+  var match = re.exec(command);
+  
+  if (match) {
+    return match[1];
+  }
+
+  throw Error('Unable to parse JS file from command: ' + command);
+}
+
 function main(args) {
 
   var result = parseArgs(args);
@@ -63,34 +80,9 @@ function main(args) {
 
   for (var i = 0; i < args.length; args++) {
     var arg = args[i];
+    goog.require(arg);
   }
 }
 
-function getArguments() {
-  var args = [];
-
-  for (var i = 0; i < arguments.length; i++) {
-    args.push(arguments[i]);
-  }
-
-  return args;
-}
-
-function extractScriptFromCommand(command) {
-  var re = new RegExp('java\/rhino\/js.jar (.*?\\.js)'); // (.*?\.js\b)');
-  var match = re.exec(command);
-  
-  if (match) {
-    return match[1];
-  }
-
-  throw Error('Unable to parse JS file from command: ' + command);
-}
-
-function printDir(obj) {
-  for (var key in obj) {
-    print(key, obj[key]);
-  }
-}
-
+// TODO(nnaze): this all belongs in an anonymous function scope
 main(arguments)
