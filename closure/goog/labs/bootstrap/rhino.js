@@ -1,7 +1,7 @@
 /**
  * @fileoverview This is a bootstrap script to run Closure on Rhino.
  * Usage:
- * rhino path/to/bootstrap/rhino.js <closure.namespace>
+ * rhino path/to/bootstrap/rhino.js --base path/to/base.js <closure.namespace>
  */
 
 
