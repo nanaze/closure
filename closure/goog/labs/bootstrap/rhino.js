@@ -64,17 +64,6 @@
     return match[1];
   }
 
-  function extractScriptFromCommand(command) {
-    var re = new RegExp('java\/rhino\/js.jar (.*?\\.js)'); // (.*?\.js\b)');
-    var match = re.exec(command);
-    
-    if (match) {
-      return match[1];
-    }
-
-    throw Error('Unable to parse JS file from command: ' + command);
-  }
-
   /**
    * Load a script.
    * @param {string} fullPath Path to script.
