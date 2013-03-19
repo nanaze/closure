@@ -64,13 +64,25 @@
   }
   
   /**
-   * Parse the path to the base directory from the path to base.js.
-   * @param {string} basePath Path to base.js.
-   * @return {string} Directory to base.js's directory.
+   * Given a filename, get the file's containing directory (by calling through
+   * to UNIX's dirname).
+   *
+   * TODO(nnaze): Call through to an equivalent on other platforms.  At runtime,
+   * one could examine environment variable to determine platform.
+   *
+   * @param {string} path Path to filename.
+   * @return {string} Path to directory containing path.
    */
-  function getBaseDirectory(basePath) {
-    var match = /(.*)base\.js$/.exec(basePath);
-    return match[1];
+  function dirName(path) {
+    var options = {};
+
+    var status = runCommand('dirname', path, options);
+    if (status != 0) {
+      throw Error('Call to dirname on path failed: ' + path);
+    }
+
+    // Command's output was appended to options.output.
+    return options.output;
   }
 
   /**
@@ -107,8 +119,8 @@
     }
     
     var basePath = base[0];
-    var baseDir = getBaseDirectory(basePath);
-    
+    var baseDir = dirName(basePath);
+
     var separator = environment['file.separator']
     var depsPath = baseDir  + 'deps.js';
     
