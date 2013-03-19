@@ -14,7 +14,15 @@
     java.lang.System.err.println(msg);
   }
 
-  function parseArgs(args) {
+  /**
+   * Parse arguments.  Will throw an error if a unrecognizable flag is specified.
+   * @param {!Array.<string>} args Arguments.
+   * @return {!Array.<!Array.<string>|!Object.<string, !Array.<string>>} A 
+   *     A tuple. First member is those arguments that are not part of a flag.
+   *     Second member is a map from full flag name (--foo) to an array of
+   *     strings (which are the specified values).
+   */
+  function parseArgs(args, definedFlags) {
     var newArgs = []
     var flags = {};
     var argsCopy = copyArray(args);
@@ -23,7 +31,7 @@
       var arg = argsCopy.shift();
 
       if (arg.substring(0, 2) == '--') {
-	if (_FLAGS.indexOf(arg) == -1) {
+	if (definedFlags.indexOf(arg) == -1) {
 	  throw Error('Unrecognized flag: ' + arg);
 	}
 	
@@ -38,6 +46,11 @@
     return [newArgs, flags];
   }
 
+  /**
+   * Make a duplicate of the given array.
+   * @param {!Array.<*>}
+   * @return {!Array.<*>} A new array with the same contents as the given.
+   */
   function copyArray(arr) {
     var newArray = [];
     for (var i = 0; i < arr.length; i++) {
@@ -62,18 +75,31 @@
     throw Error('Unable to parse JS file from command: ' + command);
   }
 
+  /**
+   * Load a script.
+   * @param {string} fullPath Path to script.
+   */
   function loadScript(fullPath) {
     log('Loading file: ' + fullPath);
     load(fullPath);
   }
 
+  /**
+   * Require a symbol.  This will call goog.require, which will, in turn, pull
+   * the necessary script files.
+   * @param {string} symbol Symbol to be required.
+   */
   function requireSymbol(symbol) {
     log('Requiring symbol: ' + symbol);
     goog.require(symbol);
   }
 
+  /**
+   * Start bootstrap.
+   * @param {!Array.<string>} args Arguments from command line, as string.
+   */
   function main(args) {
-    var result = parseArgs(args);
+    var result = parseArgs(args, _FLAGS);
     var args = result[0];
     var flags = result[1];
 
@@ -91,11 +117,13 @@
     loadScript(basePath);
     loadScript(depsPath);
     
+    // Implement the loading of a file.
     goog.global.CLOSURE_IMPORT_SCRIPT = function(scriptPath) {
       var pathToScript = baseDir + separator + scriptPath;
       loadScript(pathToScript);
     }
 
+    // The remaining arguments should be namespace symbols in need of loading.
     args.forEach(function(symbol) {
       requireSymbol(symbol);
     });
