@@ -10,6 +10,10 @@
     // TODO(nnaze): Allow specification of additional deps files.
   ]
 
+  /**
+   * Log a message.  Message is written to stderr.
+   * @param {string} msg
+   */
   function log(msg) {
     java.lang.System.err.println(msg);
   }
@@ -59,6 +63,11 @@
     return newArray;
   }
   
+  /**
+   * Parse the path to the base directory from the path to base.js.
+   * @param {string} basePath Path to base.js.
+   * @return {string} Directory to base.js's directory.
+   */
   function getBaseDirectory(basePath) {
     var match = /(.*)base\.js$/.exec(basePath);
     return match[1];
