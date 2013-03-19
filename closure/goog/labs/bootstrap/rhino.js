@@ -62,6 +62,16 @@ function extractScriptFromCommand(command) {
   throw Error('Unable to parse JS file from command: ' + command);
 }
 
+function loadScript(fullPath) {
+  log('Loading file: ' + fullPath);
+  load(fullPath);
+}
+
+function requireSymbol(symbol) {
+  log('Requiring symbol: ' + symbol);
+  goog.require(symbol);
+}
+
 function main(args) {
 
   var result = parseArgs(args);
@@ -79,21 +89,17 @@ function main(args) {
   var separator = environment['file.separator']
   var depsPath = baseDir  + 'deps.js';
 
-  load(basePath);
-  load(depsPath);
+  loadScript(basePath);
+  loadScript(depsPath);
 
   goog.global.CLOSURE_IMPORT_SCRIPT = function(scriptPath) {
     var pathToScript = baseDir + separator + scriptPath;
-
-    log('loading file ' + pathToScript);
-    load(pathToScript);
+    loadScript(pathToScript);
   }
 
-  for (var i = 0; i < args.length; args++) {
-    var arg = args[i];
-    log('requiring ' + arg);
-    goog.require(arg);
-  }
+  args.forEach(function(symbol) {
+    requireSymbol(symbol);
+  });
 }
 
 // TODO(nnaze): this all belongs in an anonymous function scope
