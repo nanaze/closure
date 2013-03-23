@@ -74,15 +74,17 @@
    * @return {string} Path to directory containing path.
    */
   function dirName(path) {
-    var options = {};
-
+    var options = {output: ''};
     var status = runCommand('dirname', path, options);
     if (status != 0) {
       throw Error('Call to dirname on path failed: ' + path);
     }
 
-    // Command's output was appended to options.output.
-    return options.output;
+    // Command's output was appended to options.output.    
+    var output = options.output;
+
+    // Remove trailing newlines
+    return output.replace(/\n$/g, '');
   }
 
   /**
@@ -120,9 +122,8 @@
     
     var basePath = base[0];
     var baseDir = dirName(basePath);
-
     var separator = environment['file.separator']
-    var depsPath = baseDir  + 'deps.js';
+    var depsPath = baseDir  + separator + 'deps.js';
     
     loadScript(basePath);
     loadScript(depsPath);
