@@ -356,8 +356,6 @@ goog.addDependency('labs/observe/observableset.js', ['goog.labs.observe.Observab
 goog.addDependency('labs/observe/observationset.js', ['goog.labs.observe.ObservationSet'], ['goog.array', 'goog.labs.observe.Observer']);
 goog.addDependency('labs/observe/observer.js', ['goog.labs.observe.Observer'], []);
 goog.addDependency('labs/observe/simpleobservable.js', ['goog.labs.observe.SimpleObservable'], ['goog.Disposable', 'goog.array', 'goog.asserts', 'goog.labs.observe.Notice', 'goog.labs.observe.Observable', 'goog.labs.observe.Observer', 'goog.object']);
-goog.addDependency('labs/rhino/timeout.js', ['goog.labs.rhino.Timeout'], ['goog.asserts']);
-goog.addDependency('labs/rhino/timeout_demo.js', ['goog.labs.rhino.TimeoutDemo'], ['goog.labs.rhino.Timeout']);
 goog.addDependency('labs/structs/map.js', ['goog.labs.structs.Map'], ['goog.array', 'goog.asserts', 'goog.labs.object', 'goog.object']);
 goog.addDependency('labs/structs/map_perf.js', ['goog.labs.structs.mapPerf'], ['goog.dom', 'goog.labs.structs.Map', 'goog.structs.Map', 'goog.testing.PerformanceTable', 'goog.testing.jsunit']);
 goog.addDependency('labs/structs/multimap.js', ['goog.labs.structs.Multimap'], ['goog.array', 'goog.labs.object', 'goog.labs.structs.Map']);
