@@ -55,13 +55,17 @@ goog.testing.jsunit.AUTO_RUN_ONLOAD = true;
   // default 10 to 50 to get more useful stack traces.
   Error.stackTraceLimit = 50;
 
+  function isBrowserEnvironment() {
+    return !!goog.global['document'];
+  }
+
   // Store a reference to the window's timeout so that it can't be overridden
   // by tests.
   /** @type {!Function} */
-  var realTimeout = window.setTimeout;
+  var realTimeout = goog.global.setTimeout;
 
   // Check for JsUnit's test runner (need to check for >2.2 and <=2.2)
-  if (top['JsUnitTestManager'] || top['jsUnitTestManager']) {
+  if (isBrowserEnvironment() && (top['JsUnitTestManager'] || top['jsUnitTestManager'])) {
     // Running inside JsUnit so add support code.
     var path = goog.basePath + goog.testing.jsunit.CORE_SCRIPT;
     document.write('<script type="text/javascript" src="' +
@@ -98,27 +102,39 @@ goog.testing.jsunit.AUTO_RUN_ONLOAD = true;
       tr.setErrorFilter(goog.global['G_errorFilter']);
     }
 
-    // Add an error handler to report errors that may occur during
-    // initialization of the page.
-    var onerror = window.onerror;
-    window.onerror = function(error, url, line) {
-      // Call any existing onerror handlers.
-      if (onerror) {
-        onerror(error, url, line);
+    if (isBrowserEnvironment()) {
+      // Add an error handler to report errors that may occur during
+      // initialization of the page.
+      var onerror = window.onerror;
+      window.onerror = function(error, url, line) {
+	// Call any existing onerror handlers.
+	if (onerror) {
+          onerror(error, url, line);
+	}
+	if (typeof error == 'object') {
+          // Webkit started passing an event object as the only argument to
+          // window.onerror.  It doesn't contain an error message, url or line
+          // number.  We therefore log as much info as we can.
+          if (error.target && error.target.tagName == 'SCRIPT') {
+            tr.logError('UNKNOWN ERROR: Script ' + error.target.src);
+          } else {
+            tr.logError('UNKNOWN ERROR: No error information available.');
+          }
+	} else {
+          tr.logError('JS ERROR: ' + error + '\nURL: ' + url + '\nLine: ' + line);
+	}
       }
-      if (typeof error == 'object') {
-        // Webkit started passing an event object as the only argument to
-        // window.onerror.  It doesn't contain an error message, url or line
-        // number.  We therefore log as much info as we can.
-        if (error.target && error.target.tagName == 'SCRIPT') {
-          tr.logError('UNKNOWN ERROR: Script ' + error.target.src);
-        } else {
-          tr.logError('UNKNOWN ERROR: No error information available.');
-        }
-      } else {
-        tr.logError('JS ERROR: ' + error + '\nURL: ' + url + '\nLine: ' + line);
+    }
+
+    function runAutoTests(opt_title) {
+      var title = opt_title || '';
+      if (!tr.initialized) {
+        var test = new goog.testing.TestCase(title);
+        test.autoDiscoverTests();
+        tr.initialize(test);
       }
-    };
+      tr.execute();
+    }
 
     // Create an onload handler, if the test runner hasn't been initialized then
     // no test has been registered with the test runner by the test file.  We
@@ -126,23 +142,21 @@ goog.testing.jsunit.AUTO_RUN_ONLOAD = true;
     // scope. If this code is being parsed by JsTestC, we let it disable the
     // onload handler to avoid running the test in JsTestC.
     if (goog.testing.jsunit.AUTO_RUN_ONLOAD) {
-      var onload = window.onload;
-      window.onload = function(e) {
-        // Call any existing onload handlers.
-        if (onload) {
-          onload(e);
-        }
-        // Wait 500ms longer so that we don't interfere with Selenium.
-        realTimeout(function() {
-          if (!tr.initialized) {
-            var test = new goog.testing.TestCase(document.title);
-            test.autoDiscoverTests();
-            tr.initialize(test);
+      if (isBrowserEnvironment()) {
+	var onload = window.onload;
+	window.onload = function(e) {
+          // Call any existing onload handlers.
+          if (onload) {
+            onload(e);
           }
-          tr.execute();
-        }, 500);
-        window.onload = null;
-      };
+          // Wait 500ms longer so that we don't interfere with Selenium.
+	  var run = goog.partial(runAutoTests, document.title)
+          realTimeout(run, 500);
+          window.onload = null;
+	};
+      } else {
+	runAutoTests();
+      }
     }
   }
 })();

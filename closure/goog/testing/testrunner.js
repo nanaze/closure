@@ -268,34 +268,20 @@ goog.testing.TestRunner.prototype.onComplete_ = function() {
     log += '\n' + this.errors.join('\n');
   }
 
-  if (!this.logEl_) {
-    var el = document.getElementById('closureTestRunnerLog');
-    if (el == null) {
-      el = document.createElement('div');
-      document.body.appendChild(el);
-    }
-    this.logEl_ = el;
-  }
-
-  // Remove all children from the log element.
-  var logEl = this.logEl_;
-  while (logEl.firstChild) {
-    logEl.removeChild(logEl.firstChild);
-  }
-
   // Highlight the page to indicate the overall outcome.
   this.writeLog(log);
+};
 
-  var runAgainLink = document.createElement('a');
-  runAgainLink.style.display = 'block';
-  runAgainLink.style.fontSize = 'small';
-  runAgainLink.href = '';
-  runAgainLink.onclick = goog.bind(function() {
-    this.execute();
-    return false;
-  }, this);
-  runAgainLink.innerHTML = 'Run again without reloading';
-  logEl.appendChild(runAgainLink);
+goog.testing.TestRunner.getLogElement_ = function() {
+  var el = document.getElementById('closureTestRunnerLog');
+  if (el) {
+    return el;
+  }
+
+  var el = document.createElement('div');
+  el.id = 'closureTestRunnerLog';
+  document.body.appendChild(el);
+  return el;
 };
 
 
@@ -304,6 +290,20 @@ goog.testing.TestRunner.prototype.onComplete_ = function() {
  * @param {string} log The string to write.
  */
 goog.testing.TestRunner.prototype.writeLog = function(log) {
+  if (goog.global['document']) {
+    goog.testing.TestRunner.writeLogInBrowser_(log);
+    return;
+  } 
+
+  // For Rhino
+  if (goog.global['print']) {
+    goog.global['print'](log);
+    return;
+  }
+
+}
+
+goog.testing.TestRunner.writeLogInBrowser_ = function(log) {
   var lines = log.split('\n');
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i];
@@ -388,7 +388,9 @@ goog.testing.TestRunner.prototype.writeLog = function(log) {
     if (i < 2) {
       div.style.fontWeight = 'bold';
     }
-    this.logEl_.appendChild(div);
+    
+    var logElement = goog.testing.TestRunner.getLogElement_();
+    logElement.appendChild(div);
   }
 };
 

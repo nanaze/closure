@@ -835,6 +835,10 @@ goog.testing.TestCase.prototype.cycleTests = function() {
  * @private
  */
 goog.testing.TestCase.prototype.countNumFilesLoaded_ = function() {
+  if (!goog.global['document']) {
+    return 0;
+  }
+
   var scripts = document.getElementsByTagName('script');
   var count = 0;
   for (var i = 0, n = scripts.length; i < n; i++) {
