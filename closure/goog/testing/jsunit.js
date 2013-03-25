@@ -141,22 +141,20 @@ goog.testing.jsunit.AUTO_RUN_ONLOAD = true;
     // then create a new test case and auto discover any tests in the global
     // scope. If this code is being parsed by JsTestC, we let it disable the
     // onload handler to avoid running the test in JsTestC.
-    if (goog.testing.jsunit.AUTO_RUN_ONLOAD) {
-      if (isBrowserEnvironment()) {
-	var onload = window.onload;
-	window.onload = function(e) {
-          // Call any existing onload handlers.
-          if (onload) {
-            onload(e);
-          }
-          // Wait 500ms longer so that we don't interfere with Selenium.
-	  var run = goog.partial(runAutoTests, document.title)
-          realTimeout(run, 500);
-          window.onload = null;
-	};
-      } else {
-	runAutoTests();
+    if (isBrowserEnvironment() && goog.testing.jsunit.AUTO_RUN_ONLOAD) {
+      var onload = window.onload;
+      window.onload = function(e) {
+        // Call any existing onload handlers.
+        if (onload) {
+          onload(e);
+        }
+        // Wait 500ms longer so that we don't interfere with Selenium.
+	var run = goog.partial(runAutoTests, document.title)
+        realTimeout(run, 500);
+        window.onload = null;
       }
     }
   }
 })();
+
+

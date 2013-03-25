@@ -1097,3 +1097,13 @@ function testParseInt() {
   assertEquals(-243, goog.string.parseInt('   -0xF3    '));
   assertTrue(isNaN(goog.string.parseInt(' - 0x32 ')));
 }
+
+(function() {
+  goog.testing.jsunit.AUTO_RUN_ONLOAD = false;
+  var test = new goog.testing.TestCase('goog.stringTest');
+  test.autoDiscoverTests();
+  var tr = new goog.testing.TestRunner();
+  tr.initialize(test);
+  tr.execute();
+})();
+

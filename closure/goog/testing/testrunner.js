@@ -264,12 +264,20 @@ goog.testing.TestRunner.prototype.execute = function() {
  */
 goog.testing.TestRunner.prototype.onComplete_ = function() {
   var log = this.testCase.getReport(true);
+  
   if (this.errors.length > 0) {
     log += '\n' + this.errors.join('\n');
   }
 
   // Highlight the page to indicate the overall outcome.
   this.writeLog(log);
+
+  if (this.errors.length > 0) {
+    if (goog.labs.rhino.isRhino()) {
+      var returnCode = this.result_.isSuccess() ? 0 : 1;
+      quit(returnCode);
+    }
+  }
 };
 
 goog.testing.TestRunner.getLogElement_ = function() {
